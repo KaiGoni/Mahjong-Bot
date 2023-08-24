@@ -111,7 +111,7 @@ export const deck = {
 
 export function generateDeck(style: "wenzhou") {
   var wildcard = "";
-  var hands = [];
+  var hands: any[][] = [[],[],[],[]];
   for (const deckStyle in deck.styles) {
     //filters tiles
     if (deckStyle === style) {
@@ -132,8 +132,13 @@ export function generateDeck(style: "wenzhou") {
     }
     //distributes tiles
     for (let i = 0; i < 4; i++) {
-      hands[i] = deck.tiles.splice(0, 16);
+      hands[i][0] = deck.tiles.splice(0, 16);
+      hands[i][1] = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
+      hands[i][2] = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
+      hands[i][3] = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
+      hands[i][4] = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
     }
+    console.log(hands);
   }
 
   return {

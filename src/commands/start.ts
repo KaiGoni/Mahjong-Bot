@@ -143,6 +143,7 @@ export class StartCommand extends Command {
           await i.reply({ content: 'You are not in this game!', ephemeral: true });
           return
         }
+        console.log("test")
         const currentPlayer = interaction.guild?.members.cache.get(game.players[game.turn]._id);
         const canvas = await createCanvas({
           turn: game.turn,
@@ -150,11 +151,11 @@ export class StartCommand extends Command {
           user: game.players.findIndex((player: any) => player._id === i.user.id),
         });
         const attachment = new AttachmentBuilder(canvas.encodeSync("png"), { name: "game.png" })
-        const tilesEmbed = new EmbedBuilder()
+        const tilesEmbed = new EmbedBuilder() 
           .setTitle(`${currentPlayer?.nickname || currentPlayer?.user.username}` + "'s Turn")
           .setDescription(`<@${game.players[game.turn]._id}>` + '➡️' + `<@${game.players[(game.turn + 1) % 4]._id}>` + '➡️' + `<@${game.players[(game.turn + 2) % 4]._id}>` + '➡️' + `<@${game.players[(game.turn + 3) % 4]._id}>`)
           .addFields(
-            { name: 'Your Hand', value: game.players.find((player: any) => player._id === i.user.id).hand.map((tile: any) => `\\${deck.tileEmojis[tile as keyof typeof deck.tileEmojis]} ${tile}`).join('\n') },
+            // { name: 'Your Hand', value: game.players.find((player: any) => player._id === i.user.id).hand.map((tile: any) => `\\${deck.tileEmojis[tile as keyof typeof deck.tileEmojis]} ${tile}`).join('\n') },
             { name: 'Wild Card', value: deck.tileEmojis[game.modifiers.wildcard as keyof typeof deck.tileEmojis] + game.modifiers.wildcard },
             { name: 'Discard Pile', value: deck.tileEmojis[game.discard[game.discard.length - 1] as keyof typeof deck.tileEmojis] + game.discard[game.discard.length - 1] || 'Empty' },
           )
@@ -162,6 +163,7 @@ export class StartCommand extends Command {
           .setColor(0x800000)
 
         var components: ActionRowBuilder<ButtonBuilder>[] = []
+        console.log("test1")
 
         if (game.players[game.turn]._id === i.user.id) {
           const button = new ButtonBuilder()
@@ -173,21 +175,21 @@ export class StartCommand extends Command {
             .addComponents(button)
           components.push(row)
 
-          var select = new StringSelectMenuBuilder()
-            .setCustomId('play-tile')
-            .setPlaceholder('Select a tile to play')
-            .addOptions(removeDuplicates(game.players.find((player: any) => player._id === i.user.id).hand).map((tile: any) => {
-              return {
-                label: `${deck.tileEmojis[tile as keyof typeof deck.tileEmojis]} ${tile}`,
-                value: tile,
-              }
-            }))
+          // var select = new StringSelectMenuBuilder()
+          //   .setCustomId('play-tile')
+          //   .setPlaceholder('Select a tile to play')
+          //   .addOptions(removeDuplicates(game.players.find((player: any) => player._id === i.user.id).hand).map((tile: any) => {
+          //     return {
+          //       label: `${deck.tileEmojis[tile as keyof typeof deck.tileEmojis]} ${tile}`,
+          //       value: tile,
+          //     }
+          //   }))
 
-          var selectRow = new ActionRowBuilder<SelectMenuBuilder>()
-            .addComponents(select)
+          // var selectRow = new ActionRowBuilder<SelectMenuBuilder>()
+          //   .addComponents(select)
         }
-
-        await i.reply({ embeds: [tilesEmbed], components, ephemeral: true });
+        console.log("test2")
+        await i.reply({ embeds: [tilesEmbed], components, ephemeral: true, files: [attachment] });
         const iReply: any = await i.fetchReply();
 
         if (game.players[game.turn]._id === i.user.id) {
@@ -197,45 +199,45 @@ export class StartCommand extends Command {
             switch (buttonInt.customId) {
               case 'select-tile-button':
 
-                await i.editReply({ components: [selectRow] });
+                // await i.editReply({ components: [selectRow] });
 
                 buttonInt.deferUpdate();
                 break;
               case 'play-tile':
                 // console.log(buttonInt.values[0])
 
-                const selectDisabled = new SelectMenuBuilder()
-                  .setCustomId('play-tile')
-                  .setPlaceholder('Select a tile to play')
-                  .addOptions(removeDuplicates(game.players.find((player: any) => player._id === i.user.id).hand).map((tile: any) => {
-                    let res: any = {
-                      label: `${deck.tileEmojis[tile as keyof typeof deck.tileEmojis]} ${tile}`,
-                      value: tile,
-                    }
-                    if (tile === buttonInt.values[0]) {
-                      res.default = true
-                    }
-                    return res
-                  }))
-                  .setDisabled(true)
+                // const selectDisabled = new SelectMenuBuilder()
+                //   .setCustomId('play-tile')
+                //   .setPlaceholder('Select a tile to play')
+                //   .addOptions(removeDuplicates(game.players.find((player: any) => player._id === i.user.id).hand).map((tile: any) => {
+                //     let res: any = {
+                //       label: `${deck.tileEmojis[tile as keyof typeof deck.tileEmojis]} ${tile}`,
+                //       value: tile,
+                //     }
+                //     if (tile === buttonInt.values[0]) {
+                //       res.default = true
+                //     }
+                //     return res
+                //   }))
+                //   .setDisabled(true)
 
-                const row1 = new ActionRowBuilder<SelectMenuBuilder>()
-                  .addComponents(selectDisabled)
+                // const row1 = new ActionRowBuilder<SelectMenuBuilder>()
+                //   .addComponents(selectDisabled)
 
-                const playTileButton = new ButtonBuilder()
-                  .setCustomId('play-tile-button')
-                  .setLabel('Play Tile')
-                  .setStyle(ButtonStyle.Primary)
+                // const playTileButton = new ButtonBuilder()
+                //   .setCustomId('play-tile-button')
+                //   .setLabel('Play Tile')
+                //   .setStyle(ButtonStyle.Primary)
 
-                const cancelButton = new ButtonBuilder()
-                  .setCustomId('cancel-button')
-                  .setLabel('Cancel')
-                  .setStyle(ButtonStyle.Danger)
+                // const cancelButton = new ButtonBuilder()
+                //   .setCustomId('cancel-button')
+                //   .setLabel('Cancel')
+                //   .setStyle(ButtonStyle.Danger)
 
-                const row2 = new ActionRowBuilder<ButtonBuilder>()
-                  .addComponents(playTileButton, cancelButton)
+                // const row2 = new ActionRowBuilder<ButtonBuilder>()
+                //   .addComponents(playTileButton, cancelButton)
 
-                i.editReply({ embeds: [tilesEmbed], components: [row1, row2] })
+                i.editReply({ embeds: [tilesEmbed], components: [/*row1, row2*/], files: [attachment] })
 
                 buttonInt.deferUpdate();
                 break;
@@ -243,7 +245,7 @@ export class StartCommand extends Command {
                 
                 break;
               case 'cancel-button':
-                i.editReply({ embeds: [tilesEmbed], components: [row] })
+                i.editReply({ embeds: [tilesEmbed], components: [row], files: [attachment] })
                 buttonInt.deferUpdate();
                 break;
             }

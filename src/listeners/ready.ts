@@ -1,5 +1,6 @@
 import { Listener, Events } from '@sapphire/framework';
 import { Client } from 'discord.js';
+import { Ansi } from "../util/ansi"
 
 export class ReadyListener extends Listener {
   public constructor(context: Listener.Context, options: Listener.Options) {
@@ -11,6 +12,6 @@ export class ReadyListener extends Listener {
   }
   public run(client: Client) {
     const { username, id, discriminator } = client.user!;
-    this.container.logger.info(`Successfully logged in as ${username}#${discriminator} (${id})`);
+    this.container.logger.info(Ansi.Colors.LightGreen(`Successfully logged in as ${Ansi.Formats.Bold(`${username}#${discriminator}`)} (${Ansi.Formats.Italic(id)})`));
   }
 }

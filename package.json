@@ -20,19 +20,29 @@
   },
   "homepage": "https://github.com/Me/MyBot#readme",
   "dependencies": {
-    "@discordjs/builders": "^1.6.3",
+    "@discordjs/builders": "^1.6.5",
     "@napi-rs/canvas": "^0.1.44",
-    "@sapphire/framework": "^4.4.4",
-    "@sapphire/plugin-subcommands": "^4.0.1",
-    "@sapphire/utilities": "^3.12.0",
-    "discord.js": "^14.11.0",
+    "@sapphire/framework": "^4.5.3",
+    "@sapphire/plugin-subcommands": "^4.2.0",
+    "@sapphire/utilities": "^3.13.0",
+    "discord.js": "^14.13.0",
     "dotenv": "^16.3.1",
     "module-alias": "^2.2.3",
-    "mongoose": "^7.3.1",
-    "typescript": "^5.1.5"
+    "mongoose": "^7.4.4"
   },
   "_moduleAliases": {
     "@util": "dist/util",
     "@schemas": "dist/schemas"
+  },
+  "devDependencies": {
+    "@types/gulp": "^4.0.13",
+    "glob-parent": "^6.0.2",
+    "gulp": "^4.0.2",
+    "gulp-typescript": "^6.0.0-alpha.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  },
+  "overrides": {
+    "glob-parent": "$glob-parent"
   }
 }

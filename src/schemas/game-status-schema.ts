@@ -1,25 +1,30 @@
 import mongoose, { Schema } from 'mongoose';
 
-function required(type: any) {
-  return {
-    type,
-    required: true
-  }
+const reqStr = {
+  type: String,
+  required: true
+}
+const reqArr = {
+  type: Array,
+  required: true
 }
 
 const schema = new Schema({
-  _id: required(String),
-  style: required(String),
+  _id: reqStr,
+  style: reqStr,
   modifiers: {
     wildcard: {
       type: String,
       default: "none"
     }
   },
-  players: required(Object),
-  deck: required(Array),
-  discard: required(Array),
-  turn: required(Number)
+  players: reqArr,
+  deck: reqArr,
+  discard: reqArr,
+  turn: {
+    type: Number,
+    requied: true
+  },
 })
 
 export = mongoose.models['game-status'] || mongoose.model('game-status', schema, 'game-status');
