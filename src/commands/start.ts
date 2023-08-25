@@ -38,7 +38,6 @@ export class StartCommand extends Command {
                 { name: "温州(Wenzhou)", value: "wenzhou" }
               )
           ),
-      // { guildIds: [ 'TESTID' ] }, // Uncomment this line to register the command in a specific guild
     );
   }
 
@@ -94,10 +93,10 @@ export class StartCommand extends Command {
         //   return
         // }
 
-        // if (game.players.length >= 4) {
-        //   await i.reply({ content: 'Game is full!', ephemeral: true });
-        //   return
-        // }
+        if (game.players.length >= 4) {
+          await i.reply({ content: 'Game is full!', ephemeral: true });
+          return
+        }
 
         // if (game.players.find((player: any) => player._id === i.user.id)) {
         //   await i.reply({ content: 'You are already in this game!', ephemeral: true });
@@ -143,7 +142,6 @@ export class StartCommand extends Command {
           await i.reply({ content: 'You are not in this game!', ephemeral: true });
           return
         }
-        console.log("test")
         const currentPlayer = interaction.guild?.members.cache.get(game.players[game.turn]._id);
         const canvas = await createCanvas({
           turn: game.turn,
@@ -155,7 +153,6 @@ export class StartCommand extends Command {
           .setTitle(`${currentPlayer?.nickname || currentPlayer?.user.username}` + "'s Turn")
           .setDescription(`<@${game.players[game.turn]._id}>` + '➡️' + `<@${game.players[(game.turn + 1) % 4]._id}>` + '➡️' + `<@${game.players[(game.turn + 2) % 4]._id}>` + '➡️' + `<@${game.players[(game.turn + 3) % 4]._id}>`)
           .addFields(
-            // { name: 'Your Hand', value: game.players.find((player: any) => player._id === i.user.id).hand.map((tile: any) => `\\${deck.tileEmojis[tile as keyof typeof deck.tileEmojis]} ${tile}`).join('\n') },
             { name: 'Wild Card', value: deck.tileEmojis[game.modifiers.wildcard as keyof typeof deck.tileEmojis] + game.modifiers.wildcard },
             { name: 'Discard Pile', value: deck.tileEmojis[game.discard[game.discard.length - 1] as keyof typeof deck.tileEmojis] + game.discard[game.discard.length - 1] || 'Empty' },
           )
@@ -163,7 +160,6 @@ export class StartCommand extends Command {
           .setColor(0x800000)
 
         var components: ActionRowBuilder<ButtonBuilder>[] = []
-        console.log("test1")
 
         if (game.players[game.turn]._id === i.user.id) {
           const button = new ButtonBuilder()
@@ -175,77 +171,137 @@ export class StartCommand extends Command {
             .addComponents(button)
           components.push(row)
 
-          // var select = new StringSelectMenuBuilder()
-          //   .setCustomId('play-tile')
-          //   .setPlaceholder('Select a tile to play')
-          //   .addOptions(removeDuplicates(game.players.find((player: any) => player._id === i.user.id).hand).map((tile: any) => {
-          //     return {
-          //       label: `${deck.tileEmojis[tile as keyof typeof deck.tileEmojis]} ${tile}`,
-          //       value: tile,
-          //     }
-          //   }))
-
-          // var selectRow = new ActionRowBuilder<SelectMenuBuilder>()
-          //   .addComponents(select)
         }
-        console.log("test2")
         await i.reply({ embeds: [tilesEmbed], components, ephemeral: true, files: [attachment] });
         const iReply: any = await i.fetchReply();
 
         if (game.players[game.turn]._id === i.user.id) {
           const collector = iReply.createMessageComponentCollector();
 
+          const colButtons: ButtonBuilder[] = [];
+          for (let i = 1; i <= 16; i++) {
+            colButtons.push(new ButtonBuilder()
+              .setLabel(`${i}`)
+              .setCustomId(`${i}`)
+              .setStyle(ButtonStyle.Secondary))
+          }
+          const buttonDiscard = new ButtonBuilder()
+            .setLabel("Discard")
+            .setCustomId("discard")
+            .setStyle(ButtonStyle.Primary)
+            .setDisabled(true)
+          const buttonMove = new ButtonBuilder()
+            .setLabel("Move")
+            .setCustomId("move")
+            .setStyle(ButtonStyle.Primary)
+            .setDisabled(true)
+          const buttonHelp = new ButtonBuilder()
+            .setLabel("Help")
+            .setCustomId("help")
+            .setStyle(ButtonStyle.Success)
+          const buttonCancel = new ButtonBuilder()
+            .setLabel("Cancel")
+            .setCustomId("cancel")
+            .setStyle(ButtonStyle.Danger)
+          const colRows: ActionRowBuilder<ButtonBuilder>[] = []
+          for (let i = 0; i < 4; i++) {
+            colRows.push(new ActionRowBuilder<ButtonBuilder>()
+              .addComponents(colButtons.slice(i * 4, (i + 1) * 4)))
+          }
+          colRows[0].addComponents(buttonDiscard)
+          colRows[1].addComponents(buttonMove)
+          colRows[2].addComponents(buttonHelp)
+          colRows[3].addComponents(buttonCancel)
+          const rowButtonA = new ButtonBuilder()
+            .setLabel("A")
+            .setCustomId("a")
+            .setStyle(ButtonStyle.Secondary)
+          const rowButtonB = new ButtonBuilder()
+            .setLabel("B")
+            .setCustomId("b")
+            .setStyle(ButtonStyle.Secondary)
+          const rowButtonC = new ButtonBuilder()
+            .setLabel("C")
+            .setCustomId("c")
+            .setStyle(ButtonStyle.Secondary)
+          const rowButtonD = new ButtonBuilder()
+            .setLabel("D")
+            .setCustomId("d")
+            .setStyle(ButtonStyle.Secondary)
+          const rowButtonE = new ButtonBuilder()
+            .setLabel("E")
+            .setCustomId("e")
+            .setStyle(ButtonStyle.Secondary)
+          const rowButtons = new ActionRowBuilder<ButtonBuilder>()
+            .addComponents(rowButtonA, rowButtonB, rowButtonC, rowButtonD, rowButtonE)
+          let tileCol: number | undefined = undefined;
+          let tileRow: "a" | "b" | "c" | "d" | "e" | undefined = undefined;
           collector.on('collect', async (buttonInt: any) => {
+            if (
+              ["a", "b", "c", "d", "e", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"]
+              .includes(buttonInt.customId)
+            ) {
+              if (isNaN(parseInt(buttonInt.customId))) {
+                rowButtonA.setStyle(ButtonStyle.Secondary)
+                rowButtonB.setStyle(ButtonStyle.Secondary)
+                rowButtonC.setStyle(ButtonStyle.Secondary)
+                rowButtonD.setStyle(ButtonStyle.Secondary)
+                rowButtonE.setStyle(ButtonStyle.Secondary)
+                tileRow = buttonInt.customId as "a" | "b" | "c" | "d" | "e";
+                switch (buttonInt.customId) {
+                  case "a":
+                    rowButtonA.setStyle(ButtonStyle.Success)
+                    break;
+                  case "b":
+                    rowButtonB.setStyle(ButtonStyle.Success)
+                    break;
+                  case "c":
+                    rowButtonC.setStyle(ButtonStyle.Success)
+                    break;
+                  case "d":
+                    rowButtonD.setStyle(ButtonStyle.Success)
+                    break;
+                  case "e":
+                    rowButtonE.setStyle(ButtonStyle.Success)
+                    break;
+                }
+              } else {
+                colButtons.forEach((button: ButtonBuilder) => {
+                  button.setStyle(ButtonStyle.Secondary)
+                });
+                tileCol = parseInt(buttonInt.customId) - 1;
+                colButtons[parseInt(buttonInt.customId) - 1].setStyle(ButtonStyle.Success)
+              }
+              if (tileCol !== undefined && tileRow !== undefined) {
+                buttonDiscard.setDisabled(false)
+                buttonMove.setDisabled(false)
+              }
+              await i.editReply({ components: [...colRows, rowButtons] });
+
+              buttonInt.deferUpdate();
+            }
+            console.log(tileCol, tileRow)
             switch (buttonInt.customId) {
               case 'select-tile-button':
-
-                // await i.editReply({ components: [selectRow] });
-
-                buttonInt.deferUpdate();
-                break;
-              case 'play-tile':
-                // console.log(buttonInt.values[0])
-
-                // const selectDisabled = new SelectMenuBuilder()
-                //   .setCustomId('play-tile')
-                //   .setPlaceholder('Select a tile to play')
-                //   .addOptions(removeDuplicates(game.players.find((player: any) => player._id === i.user.id).hand).map((tile: any) => {
-                //     let res: any = {
-                //       label: `${deck.tileEmojis[tile as keyof typeof deck.tileEmojis]} ${tile}`,
-                //       value: tile,
-                //     }
-                //     if (tile === buttonInt.values[0]) {
-                //       res.default = true
-                //     }
-                //     return res
-                //   }))
-                //   .setDisabled(true)
-
-                // const row1 = new ActionRowBuilder<SelectMenuBuilder>()
-                //   .addComponents(selectDisabled)
-
-                // const playTileButton = new ButtonBuilder()
-                //   .setCustomId('play-tile-button')
-                //   .setLabel('Play Tile')
-                //   .setStyle(ButtonStyle.Primary)
-
-                // const cancelButton = new ButtonBuilder()
-                //   .setCustomId('cancel-button')
-                //   .setLabel('Cancel')
-                //   .setStyle(ButtonStyle.Danger)
-
-                // const row2 = new ActionRowBuilder<ButtonBuilder>()
-                //   .addComponents(playTileButton, cancelButton)
-
-                i.editReply({ embeds: [tilesEmbed], components: [/*row1, row2*/], files: [attachment] })
+                await i.editReply({ components: [...colRows, rowButtons] });
 
                 buttonInt.deferUpdate();
                 break;
-              case 'play-tile-button':
-                
+              case 'discard':
                 break;
-              case 'cancel-button':
-                i.editReply({ embeds: [tilesEmbed], components: [row], files: [attachment] })
+              case 'move':
+                break;
+              case 'help':
+                break;
+              case 'cancel':
+                const button = new ButtonBuilder()
+                  .setCustomId('select-tile-button')
+                  .setLabel('Select Tile')
+                  .setStyle(ButtonStyle.Primary)
+    
+                var row = new ActionRowBuilder<ButtonBuilder>()
+                  .addComponents(button)
+                i.editReply({ components: [row] });
                 buttonInt.deferUpdate();
                 break;
             }

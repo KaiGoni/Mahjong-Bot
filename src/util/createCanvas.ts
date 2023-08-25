@@ -25,49 +25,37 @@ export default async ({
   const tileWidth = 86;
   const tileHeight = 118;
 
-  // let tableLoaded = false;
-  // let spriteSheetLoaded = false;
-
-  // table.onload = () => {
-  //   console.log("canvas1pre")
-  //   tableLoaded = true;
-  //   if (spriteSheetLoaded) {
-  //     ctx.drawImage(table, 0, 0, 2160, 2160, 0, 0, 2160, 2160)
-  //     drawHand()
-  //     console.log("canvas1")
-  //     resolve()
-  //   }
-  // }
-  // spriteSheet.onload = () => {
-  //   console.log("canvas2pre")
-  //   spriteSheetLoaded = true;
-  //   if (tableLoaded) {
-  //     ctx.drawImage(table, 0, 0, 2160, 2160, 0, 0, 2160, 2160)
-  //     drawHand()
-  //     console.log("canvas2")
-  //     resolve()
-  //   }
-  // }
-  
-  // function drawHand() {
-  //   for(let y = 0; y <= 4; y++) {
-  //     for(let x = 0; x <= 15; x++) {
-  //       const tile = players[user].hand[y][x];
-  //       if(tile != "") {
-  //         ctx.drawImage(spriteSheet, tiles[tile].x, tiles[tile].y, tileWidth, tileHeight, x * (tileWidth + 2) + 360, y * (tileHeight+2) + 1528, tileWidth, tileHeight)
-  //       }
-  //     }
-  //   }
-  // }
   ctx.drawImage(table, 0, 0, 2160, 2160, 0, 0, 2160, 2160);
   
   for(let y = 0; y <= 4; y++) {
     for(let x = 0; x <= 15; x++) {
       const tile = players[user].hand[y][x];
       if(tile != "") {
-        console.log([tile])
-        console.log(x)
         ctx.drawImage(spriteSheet, tiles[tile].x, tiles[tile].y, tileWidth, tileHeight, x * (tileWidth + 2) + 360, y * (tileHeight+2) + 1528, tileWidth, tileHeight)
+      }
+    }
+  }
+  ctx.rotate(270*Math.PI/180);
+  for(let y = 0; y <= 4; y++) { // hand 1
+    for(let x = 0; x <= 15; x++) {
+      if (players[(user % 4) + 1].hand[y][x] != "") {
+        ctx.drawImage(spriteSheet, tiles.back.x, tiles.back.y, tileWidth, tileHeight, -x * ((tileWidth*2/3)+1)-457, ((y*2/3)+1) * tileHeight + 1609.5, tileWidth*2/3, tileHeight*2/3)
+      }
+    }
+  }
+  ctx.rotate(270*Math.PI/180);
+  for(let y = 0; y <= 4; y++) { // hand 2
+    for(let x = 0; x <= 15; x++) {
+      if (players[((user + 1) % 4) + 1].hand[y][x] != "") {
+        ctx.drawImage(spriteSheet, tiles.back.x, tiles.back.y, tileWidth, tileHeight, -x * ((tileWidth*2/3)+1)-674, -((y*2/3)+1) * tileHeight, tileWidth*2/3, tileHeight*2/3)
+      }
+    }
+  }
+  ctx.rotate(270*Math.PI/180);
+  for(let y = 0; y <= 4; y++) { // hand 3
+    for(let x = 0; x <= 15; x++) {
+      if (players[((user + 2) % 4) + 1].hand[y][x] != "") {
+        ctx.drawImage(spriteSheet, tiles.back.x, tiles.back.y, tileWidth, tileHeight, x * ((tileWidth*2/3)+1) + 400, -((y*2/3)+1) * tileHeight, tileWidth*2/3, tileHeight*2/3)
       }
     }
   }

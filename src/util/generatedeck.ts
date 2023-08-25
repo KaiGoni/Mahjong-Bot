@@ -138,7 +138,6 @@ export function generateDeck(style: "wenzhou") {
       hands[i][3] = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
       hands[i][4] = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
     }
-    console.log(hands);
   }
 
   return {
